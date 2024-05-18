@@ -19,6 +19,16 @@ class UNet(nn.Module):
         num_classes: int = 10,
         output_attention: bool = False,
     ) -> None:
+        """
+        dim: The base dimensionality for the convolutional layers.
+        init_dim: The initial dimensionality for the first convolutional layer, which defaults to the value of dim if not provided.
+        dim_mults: A tuple that defines the scaling factors for dimensions as the network progresses deeper, influencing the dimensions of subsequent layers.
+        channels: Number of input channels, typically 1 for grayscale images or 3 for RGB images. Here, it is set statically to 1 within the constructor.
+        resnet_block_groups: The number of groups in each Resnet block, affecting the group convolution operations.
+        learned_sinusoidal_dim: The dimensionality of the learned sinusoidal embeddings, used for embedding the time or other continuous inputs into the model.
+        num_classes: The number of different classes for embeddings, used in conditional training scenarios.
+        output_attention: A flag to determine whether to output attention maps along with the main output, useful for visualization or further analysis.
+        """
         super().__init__()
 
         # determine dimensions
@@ -33,7 +43,7 @@ class UNet(nn.Module):
         self.init_conv = nn.Conv2d(input_channels, init_dim, (7, 7), padding=3)
         dims = [init_dim, *(dim * m for m in dim_mults)]
 
-        in_out = itertools.pairwise(dims)
+        in_out = list(itertools.pairwise(dims))
         block_klass = partial(ResnetBlock, groups=resnet_block_groups)
 
         # time embeddings

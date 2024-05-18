@@ -165,6 +165,8 @@ class Diffusion(nn.Module):
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
 
         context_mask = torch.bernoulli(torch.zeros(classes.shape[0]) + (1 - p_uncond)).to(device)
+        context_mask = torch.bernoulli(torch.zeros_like(classes) + (1 - p_uncond)).to(device)
+
 
         # Mask for unconditional guidance
         classes = classes * context_mask

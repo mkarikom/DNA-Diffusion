@@ -29,6 +29,25 @@ class TrainLoop:
         num_sampling_to_compare_cells: int = 1000,
         batch_size: int = 960,
     ):
+        """
+        Initializes the training loop for a neural network model.
+
+        Parameters:
+        - data (dict[str, Any]): Contains all necessary datasets for training and evaluation, formatted as required.
+        - model (torch.nn.Module): The neural network model to be trained.
+        - accelerator (Accelerator): Manages device placement and simplifies distributed training.
+        - epochs (int): Total number of training epochs.
+        - log_step_show (int): Interval of training steps after which training progress will be logged.
+        - sample_epoch (int): Interval of epochs after which to generate model samples.
+        - save_epoch (int): Interval of epochs after which the model state is saved.
+        - model_name (str): Base name for saving model checkpoints.
+        - image_size (int): Size of the images used for training, if applicable.
+        - num_sampling_to_compare_cells (int): Number of samples to generate for evaluating cell similarity.
+        - batch_size (int): Number of samples per batch of data.
+
+        Returns:
+        None
+        """
         self.encode_data = data
         self.model = model
         self.optimizer = Adam(self.model.parameters(), lr=1e-4)
@@ -106,6 +125,16 @@ class TrainLoop:
         return loss
 
     def log_step(self, loss, epoch):
+        """
+        Logs training metrics and progress at specified intervals.
+
+        Parameters:
+        - loss: The loss value to log.
+        - epoch: The current epoch number during training.
+
+        Returns:
+        None
+        """
         if self.accelerator.is_main_process:
             self.accelerator.log(
                 {
@@ -120,6 +149,14 @@ class TrainLoop:
             )
 
     def sample(self):
+        """
+        Generates and evaluates samples from the model at specified epoch intervals.
+
+        This method is used for qualitative assessment of the model's performance.
+
+        Returns:
+        None
+        """
         self.model.eval()
 
         # Sample from the model
@@ -152,6 +189,17 @@ class TrainLoop:
         )
 
     def load(self, path):
+        """
+        Loads a saved model and its optimizer state from a checkpoint.
+
+        This method allows the training to be resumed from a specific epoch.
+
+        Parameters:
+        - path: The filesystem path to the checkpoint file.
+
+        Returns:
+        None
+        """
         checkpoint_dict = torch.load(path)
         self.model.load_state_dict(checkpoint_dict["model"])
         self.optimizer.load_state_dict(checkpoint_dict["optimizer"])

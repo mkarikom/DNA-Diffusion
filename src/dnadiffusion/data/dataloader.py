@@ -1,4 +1,5 @@
 import os
+import sys
 import pickle
 import random
 from typing import Any
@@ -9,6 +10,13 @@ import pandas as pd
 import torch
 import torchvision.transforms as T
 from torch.utils.data import DataLoader, Dataset
+
+file_dir = os.path.dirname(__file__)
+bit_path = os.path.join(file_dir, '..','..')
+ 
+if bit_path not in sys.path:
+    sys.path.append(bit_path)
+    # sys.path.append(os.path.join(bit_path,"src","dnadiffusion"))
 
 from dnadiffusion.utils.utils import one_hot_encode
 
